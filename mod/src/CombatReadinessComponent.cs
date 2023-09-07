@@ -11,12 +11,17 @@ namespace CombatReadiness
     public class CombatReadinessCommand : Command
     {
         private readonly CombatReadinessComp thingComp;
-        
-        public CombatReadinessCommand(CombatReadinessComp thingComp)
+
+        private const string ICON = "CombatReadiness1";
+
+        private void UpdateIcon(string newIcon) => icon = ContentFinder<Texture2D>.Get(newIcon);
+
+        public CombatReadinessCommand()
         {
-            defaultDesc = "Get ready for Combat";
-            defaultLabel = "Combat Readiness";
-            this.thingComp = thingComp;
+            hotKey = KeyBindingDef.Named("R");
+            UpdateIcon(ICON);
+            defaultDesc = "Sarge945.CombatReadinessGizmoDesc".Translate();
+            defaultLabel = "Sarge945.CombatReadinessGizmoText".Translate();
         }
 
         public override bool Visible => Find.Selector.SelectedPawns.Any(p => !p.drafter.Drafted);
@@ -34,7 +39,7 @@ namespace CombatReadiness
             var targetParams = new TargetingParameters {canTargetLocations = true};
             Find.Targeter.BeginTargeting(targetParams, Execute); 
         }
-
+        
         void Execute(LocalTargetInfo targetInfo)
         {
             foreach (var pawn in Find.Selector.SelectedPawns.Where(p => p.IsColonistPlayerControlled && !p.drafter.Drafted))
@@ -54,12 +59,10 @@ namespace CombatReadiness
         {
             get
             {
+                yield return new FloatMenuOption("(Use Global Setting)", () => thingComp.CombatOutfit = null);
                 foreach (var outfit in Current.Game.outfitDatabase.AllOutfits) 
                 {
-                    //if (Event.current.shift)
-                        //yield return new FloatMenuOption($"{outfit.label} (Global)", () => CombatReadinessJobDriver.CombatOutfit = outfit);
-                    //else
-                        yield return new FloatMenuOption(outfit.label, () => thingComp.CombatOutfit = outfit);
+                    yield return new FloatMenuOption(outfit.label, () => thingComp.CombatOutfit = outfit);
                 }
             }
         }
@@ -69,22 +72,23 @@ namespace CombatReadiness
     {
         private string combatOutfit = "";
         private string previousOutfit = "";
-        public Outfit CombatOutfit {
-            get
-            {
-                var combatOutfitObj = Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == combatOutfit);
-                return combatOutfitObj ?? Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == "Soldier");
-            }
-            set => combatOutfit = value.label; }
-
-        public Outfit PreviousOutfit
+        public Outfit CombatOutfit
         {
             get
             {
-                var prevOutfitObject = Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == previousOutfit);
-                return prevOutfitObject ?? Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == "Worker");
+                string outfit = combatOutfit;
+                if (string.IsNullOrEmpty(outfit))
+                    outfit = LoadedModManager.GetMod<Mod>().GetSettings<CombatReadinessSettings>().DefaultCombatOutfitName;
+                
+                return Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == outfit);
             }
-            set => previousOutfit = value.label;
+            set => combatOutfit = value?.label;
+        }
+
+        public Outfit PreviousOutfit
+        {
+            get => Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == previousOutfit);
+            set => previousOutfit = value?.label;
         }
 
         public override void PostExposeData()
@@ -97,7 +101,7 @@ namespace CombatReadiness
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
-            yield return new CombatReadinessCommand(this);
+            yield return new CombatReadinessCommand();
         }
     }
 }
