@@ -18,7 +18,7 @@ namespace CombatReadiness
         
         void GetOutfitted()
         {
-            if (pawn?.thinker == null)
+            if (pawn?.thinker == null || pawn?.Map == null)
                 return;
 
             var combatReadinessComponent = pawn.GetComp<CombatReadinessComp>();
@@ -49,6 +49,7 @@ namespace CombatReadiness
                 {
                     Mod.ModDebug($"Job - Found Wear job...");
                     pawn.Reserve(job.targetA, job);
+                    FleckMaker.Static(job.targetA.Cell, pawn.Map, FleckDefOf.FeedbackEquip);
                     pawn.jobs.jobQueue.EnqueueFirst(new Job(JobDef, TargetA));
                     pawn.jobs.jobQueue.EnqueueFirst(job);
                     //pawn.jobs.TryTakeOrderedJob(new Job(JobDef, TargetA), JobTag.DraftedOrder, true);
@@ -62,6 +63,7 @@ namespace CombatReadiness
             }
             
             pawn.jobs.jobQueue.EnqueueLast(new Job(JobDefOf.Goto,TargetA));
+            FleckMaker.Static(TargetA.Cell, pawn.Map, FleckDefOf.FeedbackGoto);
             //pawn.jobs.TryTakeOrderedJob(new Job(JobDefOf.Goto, TargetA), JobTag.DraftedOrder, true);
             Mod.ModDebug("Job - Moving to destination");
         }

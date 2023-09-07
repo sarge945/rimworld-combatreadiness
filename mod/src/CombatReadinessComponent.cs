@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.Sound;
 
 namespace CombatReadiness
 {
@@ -12,23 +12,32 @@ namespace CombatReadiness
     {
         private readonly CombatReadinessComp thingComp;
 
-        private const string ICON = "CombatReadiness1";
+        public const string ICON_DEFAULT = "CombatReadiness1";
+        public const string ICON_CUSTOM = "CombatReadiness2";
 
-        private void UpdateIcon(string newIcon) => icon = ContentFinder<Texture2D>.Get(newIcon);
+        public void UpdateIcon(string newIcon) => icon = ContentFinder<Texture2D>.Get(newIcon);
 
-        public CombatReadinessCommand()
+        public CombatReadinessCommand(CombatReadinessComp thingComp)
         {
             hotKey = KeyBindingDef.Named("R");
-            UpdateIcon(ICON);
             defaultDesc = "Sarge945.CombatReadinessGizmoDesc".Translate();
             defaultLabel = "Sarge945.CombatReadinessGizmoText".Translate();
+            this.thingComp = thingComp;
         }
 
-        public override bool Visible => Find.Selector.SelectedPawns.Any(p => !p.drafter.Drafted);
+        public override bool Visible
+        {
+            get
+            {
+                var selectedPawns = Find.Selector?.SelectedPawns;
+                return selectedPawns != null && selectedPawns.Any(p => p.drafter is {Drafted: false});
+            }
+        }
 
-        public override void ProcessInput(Event ev)
+    public override void ProcessInput(Event ev)
         {
             base.ProcessInput(ev);
+            SoundDefOf.Click.PlayOneShotOnCamera();
             SetTarget();
             Mod.ModDebug("Clicked Gizmo");
         }
@@ -61,9 +70,7 @@ namespace CombatReadiness
             {
                 yield return new FloatMenuOption("(Use Global Setting)", () => thingComp.CombatOutfit = null);
                 foreach (var outfit in Current.Game.outfitDatabase.AllOutfits) 
-                {
                     yield return new FloatMenuOption(outfit.label, () => thingComp.CombatOutfit = outfit);
-                }
             }
         }
     }
@@ -72,13 +79,21 @@ namespace CombatReadiness
     {
         private string combatOutfit = "";
         private string previousOutfit = "";
+
+        private readonly string defaultOutfit;
+
+        public CombatReadinessComp()
+        {
+            defaultOutfit = LoadedModManager.GetMod<Mod>()?.GetSettings<CombatReadinessSettings>()?.DefaultCombatOutfitName;
+        }
+        
         public Outfit CombatOutfit
         {
             get
             {
-                string outfit = combatOutfit;
+                var outfit = combatOutfit;
                 if (string.IsNullOrEmpty(outfit))
-                    outfit = LoadedModManager.GetMod<Mod>().GetSettings<CombatReadinessSettings>().DefaultCombatOutfitName;
+                    outfit = defaultOutfit;
                 
                 return Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == outfit);
             }
@@ -93,15 +108,19 @@ namespace CombatReadiness
 
         public override void PostExposeData()
         {
-            Mod.ModDebug($"Saving Data for pawn: {this.parent.Label} (combatOutfit: {CombatOutfit})");
+            //Mod.ModDebug($"Saving Data for pawn: {this.parent.Label} (combatOutfit: {CombatOutfit})");
+            Scribe_Values.Look(ref combatOutfit, "combatOutfit", "");
+            Scribe_Values.Look(ref previousOutfit, "previousOutfit", "");
             base.PostExposeData();
-            Scribe_Values.Look(ref combatOutfit,"combatOutfit","");
-            Scribe_Values.Look(ref previousOutfit,"previousOutfit","");
         }
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
-            yield return new CombatReadinessCommand();
+            var command = new CombatReadinessCommand(this);
+            command.UpdateIcon(string.IsNullOrEmpty(combatOutfit)
+                ? CombatReadinessCommand.ICON_DEFAULT
+                : CombatReadinessCommand.ICON_CUSTOM);
+            yield return command;
         }
     }
 }
