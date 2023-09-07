@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-	<name>Combat Readiness</name>
+	<name>Combat Draft</name>
 	<author>Sarge945</author>
 	<supportedVersions>
 		<li>1.4</li>
 	</supportedVersions>
 	<packageId>Sarge945.CombatReadiness</packageId>
-	<description>Similar to mods like Gear Up and Go, this mod first gives your pawns a gear assignment, then moves them to the selected location once they finish changing. They will switch back to their previous gear and get redressed once undrafted</description>
-	<url>https://steamcommunity.com/id/</url>
+	<description>Adds a new gizmo to draft pawns, whereby they will equip a combat outfit before going to the specified location. Inspired by Gear Up and Go</description>
 </ModMetaData>

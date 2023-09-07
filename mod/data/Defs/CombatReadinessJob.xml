@@ -4,8 +4,13 @@
 	<JobDef>
 		<defName>CombatReadinessJob</defName>
 		<driverClass>CombatReadiness.CombatReadinessJobDriver</driverClass>
-		<reportString>Gearing up and entering Combat</reportString>
+		<reportString>Gearing up for combat</reportString>
 		<casualInterruptible>false</casualInterruptible>
+		<!--
+		<playerInterruptible>false</playerInterruptible>
+		<suspendable>false</suspendable>
+		<alwaysShowWeapon>true</alwaysShowWeapon>
+		-->
 	</JobDef>
 	
 </Defs>

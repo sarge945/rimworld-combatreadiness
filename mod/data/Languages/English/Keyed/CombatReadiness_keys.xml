@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
-    <Sarge945.CombatReadinessModName>Combat Readiness</Sarge945.CombatReadinessModName>
+    <Sarge945.CombatReadinessModName>Combat Draft</Sarge945.CombatReadinessModName>
     <Sarge945.CombatReadinessGizmoText>Combat Draft</Sarge945.CombatReadinessGizmoText>
-    <Sarge945.CombatReadinessGizmoDesc>Equip an outfit before moving to a location, and change back when undrafting</Sarge945.CombatReadinessGizmoDesc>
+    <Sarge945.CombatReadinessGizmoDesc>Draft and equip a combat outfit before moving to a location, and change back when undrafting</Sarge945.CombatReadinessGizmoDesc>
     <Sarge945.CombatReadinessDefaultLabel>Default Combat Outfit</Sarge945.CombatReadinessDefaultLabel>
 </LanguageData>
