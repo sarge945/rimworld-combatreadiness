@@ -10,10 +10,6 @@ namespace CombatReadiness
     {
         public static JobDef JobDef => DefDatabase<JobDef>.GetNamed("CombatReadinessJob");
 
-        public static Outfit CombatOutfit { get; set; }
-        
-        private Outfit previousOutfit;
-        
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             //throw new System.NotImplementedException();
@@ -22,16 +18,20 @@ namespace CombatReadiness
         
         void GetOutfitted()
         {
-            if (pawn.thinker == null)
+            if (pawn?.thinker == null)
+                return;
+
+            var combatReadinessComponent = pawn.GetComp<CombatReadinessComp>();
+            if (combatReadinessComponent == null)
                 return;
             
             Mod.ModDebug($"Job - {pawn.Name} Outfitting...");
 
             //Set up outfit control
-            if (CombatOutfit != null && pawn.outfits.CurrentOutfit != CombatOutfit)
+            if (pawn.outfits.CurrentOutfit != combatReadinessComponent.CombatOutfit)
             {
-                previousOutfit = pawn.outfits.CurrentOutfit;
-                pawn.outfits.CurrentOutfit = CombatOutfit;
+                combatReadinessComponent.PreviousOutfit = pawn.outfits.CurrentOutfit;
+                pawn.outfits.CurrentOutfit = combatReadinessComponent.CombatOutfit;
             }
 
             var mainTreeThinkNode = pawn.thinker.TryGetMainTreeThinkNode<JobGiver_OptimizeApparel>();
@@ -51,6 +51,8 @@ namespace CombatReadiness
                     pawn.Reserve(job.targetA, job);
                     pawn.jobs.jobQueue.EnqueueFirst(new Job(JobDef, TargetA));
                     pawn.jobs.jobQueue.EnqueueFirst(job);
+                    //pawn.jobs.TryTakeOrderedJob(new Job(JobDef, TargetA), JobTag.DraftedOrder, true);
+                    //pawn.jobs.TryTakeOrderedJob(job, JobTag.DraftedOrder, true);
                     return;
                 }
             }
@@ -59,19 +61,24 @@ namespace CombatReadiness
                 Mod.ModDebug($"Job - No wear job found... Nothing to do or no valid wearables in a stockpile zone?");
             }
             
-            pawn.jobs.jobQueue.EnqueueFirst(new Job(JobDefOf.Goto,TargetA));
+            pawn.jobs.jobQueue.EnqueueLast(new Job(JobDefOf.Goto,TargetA));
+            //pawn.jobs.TryTakeOrderedJob(new Job(JobDefOf.Goto, TargetA), JobTag.DraftedOrder, true);
             Mod.ModDebug("Job - Moving to destination");
         }
 
         private void OnJobComplete()
         {
+            var combatReadinessComponent = pawn.GetComp<CombatReadinessComp>();
+            if (combatReadinessComponent == null)
+                return;
+            
             Mod.ModDebug("Job - Finished Job");
-            pawn.outfits.CurrentOutfit = previousOutfit;
+            pawn.outfits.CurrentOutfit = combatReadinessComponent.PreviousOutfit;
         }
         
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            var T = new Toil() {initAction = GetOutfitted};
+            var T = new Toil {initAction = GetOutfitted};
             T.AddFinishAction(OnJobComplete);
             yield return T;
         }
