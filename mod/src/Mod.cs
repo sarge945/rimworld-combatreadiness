@@ -21,14 +21,16 @@ namespace CombatReadiness
         /// <summary>
         /// Simple logging function
         /// </summary>
-        public static void ModDebug(string text, bool always = false)
+        public static void ModDebug(string text)
         {
+            #if DEBUG
             Log.Message($"[Combat Readiness] {text}");
+            #endif
         }
 
         public Mod(ModContentPack content) : base(content)
         {
-            ModDebug("Mod Initialised!",true);
+            ModDebug("Mod Initialised!");
             settings = GetSettings<CombatReadinessSettings>();
         }
 
