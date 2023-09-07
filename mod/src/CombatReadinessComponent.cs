@@ -68,7 +68,7 @@ namespace CombatReadiness
             get
             {
                 if (thingComp.HasOutfitSet)
-                    yield return new FloatMenuOption("Use Global Setting", () => thingComp.CombatOutfit = null);
+                    yield return new FloatMenuOption($"Use Global Setting {thingComp.DefaultOutfit}", () => thingComp.CombatOutfit = null);
                 foreach (var outfit in Current.Game.outfitDatabase.AllOutfits)
                 {
                     string suffix = thingComp.HasOutfitSet && outfit == thingComp.CombatOutfit ? " (Selected)" : string.Empty;
@@ -84,6 +84,8 @@ namespace CombatReadiness
         private string previousOutfit = string.Empty;
 
         private readonly string defaultOutfit;
+
+        public string DefaultOutfit => defaultOutfit;
 
         public CombatReadinessComp()
         {
