@@ -19,7 +19,6 @@ namespace CombatReadiness
 
         public CombatReadinessCommand(CombatReadinessComp thingComp)
         {
-            hotKey = KeyBindingDef.Named("R");
             defaultDesc = "Sarge945.CombatReadinessGizmoDesc".Translate();
             defaultLabel = "Sarge945.CombatReadinessGizmoText".Translate();
             this.thingComp = thingComp;
@@ -30,11 +29,11 @@ namespace CombatReadiness
             get
             {
                 var selectedPawns = Find.Selector?.SelectedPawns;
-                return selectedPawns != null && selectedPawns.Any(p => p.drafter is {Drafted: false});
+                return selectedPawns != null && selectedPawns.Any(p => p.drafter is {ShowDraftGizmo: true, Drafted: false} && p.IsColonistPlayerControlled && !p.Downed && !p.Deathresting);
             }
         }
-
-    public override void ProcessInput(Event ev)
+        
+        public override void ProcessInput(Event ev)
         {
             base.ProcessInput(ev);
             SoundDefOf.Click.PlayOneShotOnCamera();
@@ -68,17 +67,21 @@ namespace CombatReadiness
         {
             get
             {
-                yield return new FloatMenuOption("(Use Global Setting)", () => thingComp.CombatOutfit = null);
-                foreach (var outfit in Current.Game.outfitDatabase.AllOutfits) 
-                    yield return new FloatMenuOption(outfit.label, () => thingComp.CombatOutfit = outfit);
+                if (thingComp.HasOutfitSet)
+                    yield return new FloatMenuOption("Use Global Setting", () => thingComp.CombatOutfit = null);
+                foreach (var outfit in Current.Game.outfitDatabase.AllOutfits)
+                {
+                    string suffix = thingComp.HasOutfitSet && outfit == thingComp.CombatOutfit ? " (Selected)" : string.Empty;
+                    yield return new FloatMenuOption(outfit.label + suffix, () => thingComp.CombatOutfit = outfit);
+                }
             }
         }
     }
     
     public class CombatReadinessComp : ThingComp
     {
-        private string combatOutfit = "";
-        private string previousOutfit = "";
+        private string combatOutfit = string.Empty;
+        private string previousOutfit = string.Empty;
 
         private readonly string defaultOutfit;
 
@@ -86,6 +89,8 @@ namespace CombatReadiness
         {
             defaultOutfit = LoadedModManager.GetMod<Mod>()?.GetSettings<CombatReadinessSettings>()?.DefaultCombatOutfitName;
         }
+
+        public bool HasOutfitSet => !string.IsNullOrEmpty(combatOutfit);
         
         public Outfit CombatOutfit
         {
@@ -117,9 +122,12 @@ namespace CombatReadiness
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
             var command = new CombatReadinessCommand(this);
-            command.UpdateIcon(string.IsNullOrEmpty(combatOutfit)
-                ? CombatReadinessCommand.ICON_DEFAULT
-                : CombatReadinessCommand.ICON_CUSTOM);
+            {
+                command.UpdateIcon(string.IsNullOrEmpty(combatOutfit)
+                    ? CombatReadinessCommand.ICON_DEFAULT
+                    : CombatReadinessCommand.ICON_CUSTOM);
+            }
+
             yield return command;
         }
     }
