@@ -16,6 +16,8 @@ namespace CombatReadiness
             defaultLabel = "Combat Readiness";
         }
 
+        public override bool Visible => Find.Selector.SelectedPawns.Any(p => !p.drafter.Drafted);
+
         public override void ProcessInput(Event ev)
         {
             base.ProcessInput(ev);
@@ -32,12 +34,30 @@ namespace CombatReadiness
 
         void Execute(LocalTargetInfo targetInfo)
         {
-            foreach (var pawn in Find.Selector.SelectedPawns.Where(p => p.IsColonistPlayerControlled))
+            foreach (var pawn in Find.Selector.SelectedPawns.Where(p => p.IsColonistPlayerControlled && !p.drafter.Drafted))
             {
                 Mod.ModDebug($"Pawn {pawn.Name} Starting Job");
+            
+                //Draft colonist
+                if (!pawn.drafter.Drafted)
+                    pawn.drafter.Drafted = true;
+                
                 pawn.jobs.TryTakeOrderedJob(new Job(CombatReadinessJobDriver.JobDef, targetInfo), JobTag.DraftedOrder);
             }
             Find.Targeter.StopTargeting();
+        }
+        public override IEnumerable<FloatMenuOption> RightClickFloatMenuOptions
+        {
+            get
+            {
+                foreach (var outfit in Current.Game.outfitDatabase.AllOutfits) 
+                {
+                    if (Event.current.shift)
+                        yield return new FloatMenuOption($"{outfit.label} (Global)", () => CombatReadinessJobDriver.CombatOutfit = outfit);
+                    else
+                        yield return new FloatMenuOption(outfit.label, () => CombatReadinessJobDriver.CombatOutfit = outfit);
+                }
+            }
         }
     }
     

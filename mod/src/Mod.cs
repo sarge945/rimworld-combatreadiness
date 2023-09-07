@@ -2,20 +2,19 @@
 
 namespace CombatReadiness
 {
-    [StaticConstructorOnStartup]
-    public class Mod
+    public class Mod : Verse.Mod
     {
-        static Mod()
-        {
-            ModDebug("Mod Initialised!",true);
-        }
-
         /// <summary>
         /// Simple logging function
         /// </summary>
         public static void ModDebug(string text, bool always = false)
         {
             Log.Message($"[Combat Readiness] {text}");
+        }
+
+        public Mod(ModContentPack content) : base(content)
+        {
+            ModDebug("Mod Initialised!",true);
         }
     }
 }

@@ -9,6 +9,10 @@ namespace CombatReadiness
     public class CombatReadinessJobDriver : JobDriver
     {
         public static JobDef JobDef => DefDatabase<JobDef>.GetNamed("CombatReadinessJob");
+
+        public static Outfit CombatOutfit { get; set; }
+        
+        private Outfit previousOutfit;
         
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -16,18 +20,21 @@ namespace CombatReadiness
             return true;
         }
         
-        //Reserve an outfit
         void GetOutfitted()
         {
             if (pawn.thinker == null)
                 return;
             
-            pawn.drafter.Drafted = true;
-            
             Mod.ModDebug($"Job - {pawn.Name} Outfitting...");
-            pawn.mindState?.Notify_OutfitChanged();
-            var mainTreeThinkNode = pawn.thinker.TryGetMainTreeThinkNode<JobGiver_OptimizeApparel>();
 
+            //Set up outfit control
+            if (CombatOutfit != null && pawn.outfits.CurrentOutfit != CombatOutfit)
+            {
+                previousOutfit = pawn.outfits.CurrentOutfit;
+                pawn.outfits.CurrentOutfit = CombatOutfit;
+            }
+
+            var mainTreeThinkNode = pawn.thinker.TryGetMainTreeThinkNode<JobGiver_OptimizeApparel>();
             if (mainTreeThinkNode == null)
                 return;
         
@@ -38,43 +45,35 @@ namespace CombatReadiness
             //If we have a valid job, reserve the object and re-queue the same job
             if (thinkResult != ThinkResult.NoJob)
             {
-
-                if (job?.def == JobDefOf.Wear)
+                if (job?.def == JobDefOf.Wear || job?.def == JobDefOf.RemoveApparel)
                 {
                     Mod.ModDebug($"Job - Found Wear job...");
                     pawn.Reserve(job.targetA, job);
                     pawn.jobs.jobQueue.EnqueueFirst(new Job(JobDef, TargetA));
                     pawn.jobs.jobQueue.EnqueueFirst(job);
+                    return;
                 }
             }
             else
             {
-                pawn.jobs.jobQueue.EnqueueFirst(new Job(JobDefOf.Goto,TargetA));
                 Mod.ModDebug($"Job - No wear job found... Nothing to do or no valid wearables in a stockpile zone?");
             }
+            
+            pawn.jobs.jobQueue.EnqueueFirst(new Job(JobDefOf.Goto,TargetA));
+            Mod.ModDebug("Job - Moving to destination");
         }
 
-        //Draft and go to final location
-        void GoToJobLocation()
+        private void OnJobComplete()
         {
-            Mod.ModDebug($"Job - {pawn.Name} going to final location...");
-            pawn.drafter.Drafted = true;
-            Mod.ModDebug("1");
-            IntVec3 destination = RCellFinder.BestOrderedGotoDestNear(this.TargetA.Cell, pawn);
-            Mod.ModDebug("2");
-            var newJob = new Job(JobDefOf.Goto,destination);
-            Mod.ModDebug("3");
-            if (pawn.Map.exitMapGrid.IsExitCell(destination))
-                newJob.exitMapOnArrival = true;
-            Mod.ModDebug("4");
-            pawn.jobs.StartJob(newJob, JobCondition.Succeeded);
-            //pawn.jobs.jobQueue.EnqueueFirst(newJob);
+            Mod.ModDebug("Job - Finished Job");
+            pawn.outfits.CurrentOutfit = previousOutfit;
         }
         
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            //yield return new Toil {initAction = GoToJobLocation};
-            yield return new Toil {initAction = GetOutfitted};
+            var T = new Toil() {initAction = GetOutfitted};
+            T.AddFinishAction(OnJobComplete);
+            yield return T;
         }
     }
 }

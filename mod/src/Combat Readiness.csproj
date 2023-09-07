@@ -37,10 +37,6 @@
           <HintPath>F:\SteamLibrary\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
           <Private>False</Private>
         </Reference>
-        <Reference Include="GearUpAndGo, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>F:\SteamLibrary\steamapps\workshop\content\294100\1316142788\1.4\Assemblies\GearUpAndGo.dll</HintPath>
-          <Private>False</Private>
-        </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
