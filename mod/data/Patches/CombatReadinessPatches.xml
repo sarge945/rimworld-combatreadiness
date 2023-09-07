@@ -3,7 +3,7 @@
 	<Operation Class="PatchOperationAdd">
 		<xpath>Defs/ThingDef [@Name ="BasePawn"]/comps</xpath>
 		<value>
-			<li><compClass>CombatReadiness.CombatReadinessGizmo</compClass></li>
+			<li><compClass>CombatReadiness.CombatReadinessComp</compClass></li>
 		</value>
 	</Operation>
 
