@@ -28,10 +28,10 @@ namespace CombatReadiness
             Mod.ModDebug($"Job - {pawn.Name} Outfitting...");
 
             //Set up outfit control
-            if (pawn.outfits.CurrentOutfit != combatReadinessComponent.CombatOutfit)
+            if (pawn.outfits.CurrentApparelPolicy != combatReadinessComponent.CombatOutfit)
             {
-                combatReadinessComponent.PreviousOutfit = pawn.outfits.CurrentOutfit;
-                pawn.outfits.CurrentOutfit = combatReadinessComponent.CombatOutfit;
+                combatReadinessComponent.PreviousOutfit = pawn.outfits.CurrentApparelPolicy;
+                pawn.outfits.CurrentApparelPolicy = combatReadinessComponent.CombatOutfit;
             }
 
             var mainTreeThinkNode = pawn.thinker.TryGetMainTreeThinkNode<JobGiver_OptimizeApparel>();
@@ -75,7 +75,7 @@ namespace CombatReadiness
                 return;
             
             Mod.ModDebug("Job - Finished Job");
-            pawn.outfits.CurrentOutfit = combatReadinessComponent.PreviousOutfit;
+            pawn.outfits.CurrentApparelPolicy = combatReadinessComponent.PreviousOutfit;
         }
         
         protected override IEnumerable<Toil> MakeNewToils()

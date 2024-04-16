@@ -94,7 +94,7 @@ namespace CombatReadiness
 
         public bool HasOutfitSet => !string.IsNullOrEmpty(combatOutfit);
         
-        public Outfit CombatOutfit
+        public ApparelPolicy CombatOutfit
         {
             get
             {
@@ -107,7 +107,7 @@ namespace CombatReadiness
             set => combatOutfit = value?.label;
         }
 
-        public Outfit PreviousOutfit
+        public ApparelPolicy PreviousOutfit
         {
             get => Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(x => x.label == previousOutfit);
             set => previousOutfit = value?.label;
