@@ -4,6 +4,7 @@
 	<author>Sarge945</author>
 	<supportedVersions>
 		<li>1.5</li>
+		<li>1.6</li>
 	</supportedVersions>
 	<packageId>Sarge945.CombatReadiness</packageId>
 	<description>Adds a new gizmo to draft pawns, whereby they will equip a combat outfit before going to the specified location. Inspired by Gear Up and Go</description>

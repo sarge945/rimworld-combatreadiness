@@ -51,6 +51,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CombatReadinessCommand.cs" />
+    <Compile Include="CombatReadinessJobDefensiveDriver.cs" />
     <Compile Include="CombatReadinessComponent.cs" />
     <Compile Include="CombatReadinessJobDriver.cs" />
     <Compile Include="Mod.cs" />

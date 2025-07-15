@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -8,8 +8,7 @@ namespace CombatReadiness
 {
     public class CombatReadinessJobDriver : JobDriver
     {
-        public static JobDef JobDef => DefDatabase<JobDef>.GetNamed("CombatReadinessJob");
-
+        protected virtual JobDef JobDef => DefDatabase<JobDef>.GetNamed("CombatReadinessJob");
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             //throw new System.NotImplementedException();
@@ -62,12 +61,19 @@ namespace CombatReadiness
                 Mod.ModDebug($"Job - No wear job found... Nothing to do or no valid wearables in a stockpile zone?");
             }
             
-            pawn.jobs.jobQueue.EnqueueLast(new Job(JobDefOf.Goto,TargetA));
-            FleckMaker.Static(TargetA.Cell, pawn.Map, FleckDefOf.FeedbackGoto);
-            //pawn.jobs.TryTakeOrderedJob(new Job(JobDefOf.Goto, TargetA), JobTag.DraftedOrder, true);
-            Mod.ModDebug("Job - Moving to destination");
+            //Send to drafted position
+            OrderToFinalLocation();
         }
 
+        //Just go to the final location. This is overridden when doing
+        //the Defensive job, which sends us to our defensive position instead.
+        protected virtual void OrderToFinalLocation()
+        {
+            FleckMaker.Static(TargetA.Cell, pawn.Map, FleckDefOf.FeedbackGoto);
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Goto, TargetA), JobTag.DraftedOrder);
+            Mod.ModDebug("Job - Moving to destination");
+        }
+        
         private void OnJobComplete()
         {
             var combatReadinessComponent = pawn.GetComp<CombatReadinessComp>();

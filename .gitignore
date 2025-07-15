@@ -4,3 +4,5 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 build/
+mod/src/.vs/
+mod/src/Combat Readiness.sln.DotSettings.user

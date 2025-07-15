@@ -3,5 +3,8 @@
     <Sarge945.CombatReadinessModName>Combat Draft</Sarge945.CombatReadinessModName>
     <Sarge945.CombatReadinessGizmoText>Combat Draft</Sarge945.CombatReadinessGizmoText>
     <Sarge945.CombatReadinessGizmoDesc>Draft and equip a combat outfit before moving to a location, and change back when undrafting</Sarge945.CombatReadinessGizmoDesc>
+    <Sarge945.CombatReadinessGizmoText2>Defensive Draft</Sarge945.CombatReadinessGizmoText2>
+    <Sarge945.CombatReadinessGizmoDesc2>Draft and equip a combat outfit before moving to defensive positions, and change back when undrafting</Sarge945.CombatReadinessGizmoDesc2>
     <Sarge945.CombatReadinessDefaultLabel>Default Combat Outfit</Sarge945.CombatReadinessDefaultLabel>
+    <Sarge945.CombatReadinessShowGizmosLabel>Show Original Gizmo alongside Defensive Gizmo</Sarge945.CombatReadinessShowGizmosLabel>
 </LanguageData>
