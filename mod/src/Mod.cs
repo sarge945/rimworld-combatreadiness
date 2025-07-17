@@ -45,7 +45,7 @@ namespace CombatReadiness
         /// </summary>
         public static Gizmo GetDefensivePositionsGizmo(Pawn p)
         {
-            return p?.GetGizmos().FirstOrDefault(g => g.GetType().Name == "Gizmo_DefensivePositionButton");
+            return p?.GetGizmos().FirstOrDefault(g => g.GetType().Name is "Gizmo_DefensivePositionButton" or "Gizmo_QuadButtonPanel");
         }
         
         /// <summary>
